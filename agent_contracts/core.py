@@ -1,9 +1,10 @@
 from __future__ import annotations
 
 import time
+from collections.abc import Callable, Mapping
 from dataclasses import dataclass, field
 from threading import Lock
-from typing import Any, Callable, Mapping
+from typing import Any
 
 
 class ContractError(ValueError):
@@ -94,7 +95,7 @@ class ToolRunner:
                 tool.record_success()
                 events.append({"event": "tool_succeeded", "tool": tool.name, "attempt": attempt})
                 return ToolResult(tool.name, dict(output), attempt, elapsed * 1000, tuple(events))
-            except Exception as error:  # retry policy intentionally covers provider failures and contract failures
+            except Exception as error:  # noqa: BLE001 - provider failures are intentionally retryable
                 last_error = error
                 tool.record_failure()
                 events.append({"event": "tool_failed", "tool": tool.name, "attempt": attempt, "error": type(error).__name__})
